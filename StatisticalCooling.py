@@ -4,12 +4,13 @@ import math
 import copy
 
 class Algo:
-    def __init__(self, t, coeff, gr, optimum):
+    def __init__(self, t, coeff, gr, optimum, max_iter):
         self.iter_cnt = 0
         self.t = t
         self.coeff = coeff
         self.gr = gr
         self.optimum = optimum
+        self.max_iter = max_iter
 
     def ManhattanDistance(self, g):
         s = 0
@@ -18,7 +19,7 @@ class Algo:
             x1 = i[0] % g.vpl
             y1 = i[0] / g.vpl
             x2 = i[1] % g.vpl
-            y2 = i[0] / g.vpl
+            y2 = i[1] / g.vpl
             s = s + abs(x2 - x1) + abs(y2 - y1)
 
         return 5 * s
@@ -47,23 +48,26 @@ class Algo:
 
     def Run(self):
         if True:
-            if self.t < 1e-2:
-                return None
+            # break case
+            if self.t == 0 or self.iter_cnt >= self.max_iter:
+                return (None, 0)
 
             g2 = self.GetNewGraph(self.gr)
             m1 = self.ManhattanDistance(g2)
             m2 = self.ManhattanDistance(self.gr)
+
+            # optimum reached
+            if m2 == self.optimum:
+                return (None, m2)
 
             delta = m1 - m2
 
             metro = self.MetropolisCrit(delta, self.t)
             if metro:
                 self.gr = g2
+                print 'T = ' + str(self.t) + '\t' + 'Iter : ' + str(self.iter_cnt)
 
             self.iter_cnt = self.iter_cnt + 1
             self.t = self.t * self.coeff
-            if metro:
-                print m2
-                print 'T = ' + str(self.t) + '\t' + 'Iter : ' + str(self.iter_cnt)
 
-        return self.gr
+        return (self.gr, m2)
